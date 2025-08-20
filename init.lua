@@ -462,7 +462,7 @@ require('lazy').setup({
     end,
   },
 
-  {
+  { -- File Browser
     'nvim-telescope/telescope-file-browser.nvim',
     event = 'VimEnter',
     dependencies = {
@@ -492,7 +492,7 @@ require('lazy').setup({
       telescope.load_extension 'file_browser'
 
       -- open file_browser with the path of the current buffer
-      vim.keymap.set('n', '<space>fb', ':Telescope file_browser path=%:p:h select_buffer=true<CR>')
+      vim.keymap.set('n', '<space>fb', ':Telescope file_browser path=%:p:h select_buffer=true<CR>', { desc = '[F]ile [B]rowser' })
     end,
   },
 
