@@ -518,14 +518,7 @@ require('lazy').setup({
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
       { 'mason-org/mason.nvim', opts = {} },
       'mason-org/mason-lspconfig.nvim',
-      {
-        'WhoIsSethDaniel/mason-tool-installer.nvim',
-        opts = {
-          ensure_installed = {
-            'ruff',
-          },
-        },
-      },
+      'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
       { 'j-hui/fidget.nvim', opts = {} },
@@ -757,6 +750,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'ruff', -- python formatter
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
