@@ -184,6 +184,21 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
+-- "Small" Terminal
+vim.keymap.set('n', '<leader>st', function()
+  vim.cmd.vnew()
+  vim.cmd.term()
+  vim.cmd.wincmd('J')
+  vim.api.nvim_win_set_height(0, 15)
+  vim.schedule(function()
+    vim.cmd.startinsert()
+  end)
+end)
+
+-- Execute Lua
+vim.keymap.set('n', '<leader>x', ':.lua<CR>', { desc = 'Execute current line as Lua' })
+vim.keymap.set('v', '<leader>x', ':<C-u>lua<CR>', { desc = 'Execute selected Lua' })
+
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
