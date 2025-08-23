@@ -176,25 +176,6 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
--- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
--- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
--- is not what someone will guess without a bit more experience.
---
--- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
--- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
-
--- "Small" Terminal
-vim.keymap.set('n', '<leader>st', function()
-  vim.cmd.vnew()
-  vim.cmd.term()
-  vim.cmd.wincmd('J')
-  vim.api.nvim_win_set_height(0, 15)
-  vim.schedule(function()
-    vim.cmd.startinsert()
-  end)
-end)
-
 -- Execute Lua
 vim.keymap.set('n', '<leader>x', ':.lua<CR>', { desc = 'Execute current line as Lua' })
 vim.keymap.set('v', '<leader>x', ':<C-u>lua<CR>', { desc = 'Execute selected Lua' })
@@ -219,6 +200,64 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+
+-- [[ Terminal ]]
+
+-- Small Terminal functionality
+local function toggle_small_terminal()
+  local small_term_buf = vim.g.small_term_buf
+
+  -- Check if terminal buffer exists and is valid
+  if small_term_buf and vim.api.nvim_buf_is_valid(small_term_buf) then
+    -- Find if terminal is already open in a window
+    local term_win = nil
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      if vim.api.nvim_win_get_buf(win) == small_term_buf then
+        term_win = win
+        break
+      end
+    end
+
+    if term_win then
+      -- Terminal is already open, just focus it
+      vim.api.nvim_set_current_win(term_win)
+    else
+      -- Terminal buffer exists but not open, open it in new window
+      vim.cmd.vnew()
+      vim.api.nvim_win_set_buf(0, small_term_buf)
+      vim.cmd.wincmd('J')
+      vim.api.nvim_win_set_height(0, 15)
+    end
+  else
+    -- Create new terminal
+    vim.cmd.vnew()
+    vim.cmd.term()
+    vim.g.small_term_buf = vim.api.nvim_get_current_buf()
+    vim.cmd.wincmd('J')
+    vim.api.nvim_win_set_height(0, 15)
+  end
+
+  vim.schedule(function()
+    vim.cmd.startinsert()
+  end)
+end
+
+vim.keymap.set('n', '<leader>st', toggle_small_terminal, { desc = 'Toggle small terminal' })
+
+-- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
+-- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
+-- is not what someone will guess without a bit more experience.
+--
+-- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
+-- or just use <C-\><C-n> to exit terminal mode
+vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+
+-- Quick close terminal window from terminal mode
+vim.keymap.set('t', '<C-q>', '<C-\\><C-n>:q<CR>', { desc = 'Close terminal window' })
+
+-- Toggle terminal window maximize/restore
+vim.keymap.set('t', '<C-f>', '<C-\\><C-n><C-w>_<C-w>|i', { desc = 'Maximize terminal window' })
+vim.keymap.set('t', '<C-r>', '<C-\\><C-n><C-w>=i', { desc = 'Restore terminal window size' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
