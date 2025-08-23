@@ -257,7 +257,13 @@ vim.keymap.set('t', '<C-q>', '<C-\\><C-n>:q<CR>', { desc = 'Close terminal windo
 
 -- Toggle terminal window maximize/restore
 vim.keymap.set('t', '<C-f>', '<C-\\><C-n><C-w>_<C-w>|i', { desc = 'Maximize terminal window' })
-vim.keymap.set('t', '<C-r>', '<C-\\><C-n><C-w>=i', { desc = 'Restore terminal window size' })
+vim.keymap.set('t', '<C-r>', '<C-\\><C-n><C-w>=:resize 15<CR>i', { desc = 'Restore terminal window size' })
+
+-- Open new terminal in split
+vim.keymap.set('t', '<C-t>', '<C-\\><C-n>:vnew<CR>:term<CR>i', { desc = 'New terminal in vertical split' })
+
+-- Switch windows from terminal mode
+vim.keymap.set('t', '<C-w>w', '<C-\\><C-n><C-w>w', { desc = 'Switch to next window' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
