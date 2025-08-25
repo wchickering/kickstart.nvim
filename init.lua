@@ -186,6 +186,9 @@ vim.keymap.set('v', '<leader>x', ':<C-u>lua<CR>', { desc = 'Execute selected Lua
 -- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
+-- Tab management
+vim.keymap.set('n', '<leader>tn', '<cmd>tabnew<CR>', { desc = 'Create new [T]ab' })
+
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
 --
