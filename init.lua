@@ -207,7 +207,7 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- [[ Terminal ]]
 
 -- Small Terminal functionality
-local function toggle_small_terminal()
+local function toggle_terminal()
   local small_term_buf = vim.g.small_term_buf
 
   -- Check if terminal buffer exists and is valid
@@ -245,7 +245,7 @@ local function toggle_small_terminal()
   end)
 end
 
-vim.keymap.set('n', '<leader>st', toggle_small_terminal, { desc = 'Toggle small terminal' })
+vim.keymap.set('n', '<leader>tt', toggle_terminal, { desc = '[T]oggle [T]erminal' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
