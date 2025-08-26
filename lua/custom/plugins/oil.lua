@@ -47,17 +47,23 @@ return {
       keymaps = {
         ["<C-f>"] = {
           callback = function()
-            -- Close current oil window/buffer
-            vim.cmd('quit')
+            local current_mode = oil_mode
 
-            -- Toggle mode
+            -- Toggle mode first
             oil_mode = oil_mode == 'float' and 'window' or 'float'
 
-            -- Reopen in new mode
-            if oil_mode == 'float' then
-              require('oil').open_float()
-            else
+            if current_mode == 'float' then
+              -- Close floating window and open in window mode
+              vim.cmd('quit')
+              original_buffer = vim.api.nvim_get_current_buf()
               require('oil').open()
+            else
+              -- Close window mode buffer and open in float mode
+              if original_buffer and vim.api.nvim_buf_is_valid(original_buffer) then
+                vim.api.nvim_set_current_buf(original_buffer)
+              end
+              original_buffer = nil
+              require('oil').open_float()
             end
           end,
           desc = "Toggle between floating and full window mode",
