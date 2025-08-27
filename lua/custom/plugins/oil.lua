@@ -68,6 +68,25 @@ return {
           end,
           desc = "Toggle between floating and full window mode",
         },
+        ["<C-p>"] = {
+          callback = function()
+            if oil_mode == 'float' then
+              -- Switch to window mode first
+              vim.cmd('quit')
+              original_buffer = vim.api.nvim_get_current_buf()
+              oil_mode = 'window'
+              require('oil').open()
+              -- Wait a moment then trigger preview
+              vim.schedule(function()
+                require('oil.actions').preview.callback()
+              end)
+            else
+              -- Already in window mode, just preview
+              require('oil.actions').preview.callback()
+            end
+          end,
+          desc = "Preview (switch to window mode first if in float mode)",
+        },
       },
     }
 
@@ -105,6 +124,8 @@ return {
               end
               original_buffer = nil
             end
+            -- Reset to float mode whenever we exit oil
+            oil_mode = 'float'
           end)
         end
       end,
