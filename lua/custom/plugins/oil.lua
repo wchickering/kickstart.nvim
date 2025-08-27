@@ -48,6 +48,8 @@ return {
         ["<C-f>"] = {
           callback = function()
             local current_mode = oil_mode
+            -- Get current oil directory before switching
+            local current_oil_dir = vim.api.nvim_buf_get_name(0):match('oil://(.+)')
 
             -- Toggle mode first
             oil_mode = oil_mode == 'float' and 'window' or 'float'
@@ -56,14 +58,22 @@ return {
               -- Close floating window and open in window mode
               vim.cmd('quit')
               original_buffer = vim.api.nvim_get_current_buf()
-              require('oil').open()
+              if current_oil_dir then
+                require('oil').open(current_oil_dir)
+              else
+                require('oil').open()
+              end
             else
               -- Close window mode buffer and open in float mode
               if original_buffer and vim.api.nvim_buf_is_valid(original_buffer) then
                 vim.api.nvim_set_current_buf(original_buffer)
               end
               original_buffer = nil
-              require('oil').open_float()
+              if current_oil_dir then
+                require('oil').open_float(current_oil_dir)
+              else
+                require('oil').open_float()
+              end
             end
           end,
           desc = "Toggle between floating and full window mode",
