@@ -14,6 +14,7 @@ return {
     local oil_mode = 'float'
     local original_tab = nil
     local original_win = nil
+    local window_mode_buffer = nil
 
     require('oil').setup {
       default_file_explorer = true,
@@ -70,6 +71,7 @@ return {
               original_tab = vim.api.nvim_get_current_tabpage()
               original_win = vim.api.nvim_get_current_win()
               vim.cmd('tabnew') -- create new tab for oil
+              window_mode_buffer = vim.api.nvim_get_current_buf() -- track the new buffer
               if current_oil_dir then
                 require('oil').open(current_oil_dir)
               else
@@ -78,6 +80,12 @@ return {
             else
               -- Switch from window to float mode: close tab and open float
               vim.cmd('tabclose') -- close oil tab, returns to original
+
+              -- Clean up the window mode buffer
+              if window_mode_buffer and vim.api.nvim_buf_is_valid(window_mode_buffer) then
+                vim.api.nvim_buf_delete(window_mode_buffer, { force = true })
+              end
+
               if current_oil_dir then
                 require('oil').open_float(current_oil_dir)
               else
@@ -85,6 +93,7 @@ return {
               end
               original_tab = nil
               original_win = nil
+              window_mode_buffer = nil
             end
           end,
           desc = "Toggle between floating and full window mode",
@@ -98,6 +107,7 @@ return {
               original_win = vim.api.nvim_get_current_win()
               oil_mode = 'window'
               vim.cmd('tabnew')
+              window_mode_buffer = vim.api.nvim_get_current_buf() -- track the new buffer
               require('oil').open()
               -- Wait a moment then trigger preview
               vim.schedule(function()
@@ -126,8 +136,22 @@ return {
                   vim.api.nvim_set_current_win(original_win)
                 end
 
-                -- Close oil tab
-                vim.cmd('tabclose ' .. vim.api.nvim_tabpage_get_number(vim.api.nvim_get_current_tabpage()) + 1)
+                -- Get the tab number before switching
+                local oil_tab = vim.api.nvim_get_current_tabpage()
+
+                -- Switch to original tab and window first
+                vim.api.nvim_set_current_tabpage(original_tab)
+                if vim.api.nvim_win_is_valid(original_win) then
+                  vim.api.nvim_set_current_win(original_win)
+                end
+
+                -- Clean up window mode buffer
+                if window_mode_buffer and vim.api.nvim_buf_is_valid(window_mode_buffer) then
+                  vim.api.nvim_buf_delete(window_mode_buffer, { force = true })
+                end
+
+                -- Close oil tab (now we're in the original tab)
+                vim.cmd('tabclose ' .. vim.api.nvim_tabpage_get_number(oil_tab))
 
                 -- Open the file
                 vim.cmd('edit ' .. vim.fn.fnameescape(file_path))
@@ -136,6 +160,7 @@ return {
                 oil_mode = 'float'
                 original_tab = nil
                 original_win = nil
+                window_mode_buffer = nil
               else
                 -- Not a file, use default oil behavior (navigate directory)
                 require('oil.actions').select.callback()
@@ -162,11 +187,18 @@ return {
     -- Reset to float mode when oil tab is closed
     vim.api.nvim_create_autocmd('TabClosed', {
       callback = function()
-        -- If we were in window mode, reset to float mode
+        -- If we were in window mode, reset to float mode and clean up
         if oil_mode == 'window' then
           oil_mode = 'float'
+
+          -- Clean up window mode buffer if it still exists
+          if window_mode_buffer and vim.api.nvim_buf_is_valid(window_mode_buffer) then
+            vim.api.nvim_buf_delete(window_mode_buffer, { force = true })
+          end
+
           original_tab = nil
           original_win = nil
+          window_mode_buffer = nil
         end
       end,
     })
