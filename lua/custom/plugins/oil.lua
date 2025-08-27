@@ -12,7 +12,8 @@ return {
   config = function()
     -- Track current mode: 'float' or 'window'
     local oil_mode = 'float'
-    local original_buffer = nil
+    local original_tab = nil
+    local original_win = nil
 
     require('oil').setup {
       default_file_explorer = true,
@@ -64,25 +65,26 @@ return {
             oil_mode = oil_mode == 'float' and 'window' or 'float'
 
             if current_mode == 'float' then
-              -- Close floating window and open in window mode
-              vim.cmd('quit')
-              original_buffer = vim.api.nvim_get_current_buf()
+              -- Switch from float to window mode: open in new tab
+              vim.cmd('quit') -- close floating window
+              original_tab = vim.api.nvim_get_current_tabpage()
+              original_win = vim.api.nvim_get_current_win()
+              vim.cmd('tabnew') -- create new tab for oil
               if current_oil_dir then
                 require('oil').open(current_oil_dir)
               else
                 require('oil').open()
               end
             else
-              -- Close window mode buffer and open in float mode
-              if original_buffer and vim.api.nvim_buf_is_valid(original_buffer) then
-                vim.api.nvim_set_current_buf(original_buffer)
-              end
-              original_buffer = nil
+              -- Switch from window to float mode: close tab and open float
+              vim.cmd('tabclose') -- close oil tab, returns to original
               if current_oil_dir then
                 require('oil').open_float(current_oil_dir)
               else
                 require('oil').open_float()
               end
+              original_tab = nil
+              original_win = nil
             end
           end,
           desc = "Toggle between floating and full window mode",
@@ -92,8 +94,10 @@ return {
             if oil_mode == 'float' then
               -- Switch to window mode first
               vim.cmd('quit')
-              original_buffer = vim.api.nvim_get_current_buf()
+              original_tab = vim.api.nvim_get_current_tabpage()
+              original_win = vim.api.nvim_get_current_win()
               oil_mode = 'window'
+              vim.cmd('tabnew')
               require('oil').open()
               -- Wait a moment then trigger preview
               vim.schedule(function()
@@ -106,6 +110,43 @@ return {
           end,
           desc = "Preview (switch to window mode first if in float mode)",
         },
+        -- Custom select action to open files in original tab when in window mode
+        ["<CR>"] = {
+          callback = function()
+            if oil_mode == 'window' and original_tab and original_win then
+              -- Get the selected file path
+              local entry = require('oil').get_cursor_entry()
+              if entry and entry.type == 'file' then
+                local oil_dir = require('oil').get_current_dir()
+                local file_path = oil_dir .. entry.name
+
+                -- Switch to original tab and window
+                vim.api.nvim_set_current_tabpage(original_tab)
+                if vim.api.nvim_win_is_valid(original_win) then
+                  vim.api.nvim_set_current_win(original_win)
+                end
+
+                -- Close oil tab
+                vim.cmd('tabclose ' .. vim.api.nvim_tabpage_get_number(vim.api.nvim_get_current_tabpage()) + 1)
+
+                -- Open the file
+                vim.cmd('edit ' .. vim.fn.fnameescape(file_path))
+
+                -- Reset mode and tracking
+                oil_mode = 'float'
+                original_tab = nil
+                original_win = nil
+              else
+                -- Not a file, use default oil behavior (navigate directory)
+                require('oil.actions').select.callback()
+              end
+            else
+              -- In float mode or no original tab, use default behavior
+              require('oil.actions').select.callback()
+            end
+          end,
+          desc = "Open file in original window or navigate directory",
+        },
       },
     }
 
@@ -113,39 +154,19 @@ return {
       if oil_mode == 'float' then
         require('oil').open_float()
       else
-        -- Store the current buffer before opening oil in full window mode
-        original_buffer = vim.api.nvim_get_current_buf()
+        -- In window mode, oil is in a separate tab, so just open normally
         require('oil').open()
       end
     end, { desc = 'Open parent directory' })
 
-    -- Restore original buffer when oil is closed (unless a file was selected)
-    vim.api.nvim_create_autocmd('BufLeave', {
-      pattern = 'oil://*',
+    -- Reset to float mode when oil tab is closed
+    vim.api.nvim_create_autocmd('TabClosed', {
       callback = function()
-        if oil_mode == 'window' and original_buffer then
-          -- Check if we're leaving oil to go to a different buffer (file selection)
-          vim.schedule(function()
-            local current_buf = vim.api.nvim_get_current_buf()
-            local current_buf_name = vim.api.nvim_buf_get_name(current_buf)
-
-            -- If the new buffer is not an oil buffer and not a file we selected from oil,
-            -- and if we just closed oil without selecting a file, restore original buffer
-            if not current_buf_name:match('^oil://') then
-              -- This means we either selected a file or closed oil
-              -- We only restore if the window is empty or if we explicitly closed without selection
-              local buf_lines = vim.api.nvim_buf_get_lines(current_buf, 0, -1, false)
-              local is_empty = #buf_lines == 1 and buf_lines[1] == ""
-
-              -- Only restore if buffer is empty (means we closed oil without selecting)
-              if is_empty and vim.api.nvim_buf_is_valid(original_buffer) then
-                vim.api.nvim_set_current_buf(original_buffer)
-              end
-              original_buffer = nil
-            end
-            -- Reset to float mode whenever we exit oil
-            oil_mode = 'float'
-          end)
+        -- If we were in window mode, reset to float mode
+        if oil_mode == 'window' then
+          oil_mode = 'float'
+          original_tab = nil
+          original_win = nil
         end
       end,
     })
