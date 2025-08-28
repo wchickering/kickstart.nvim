@@ -864,6 +864,10 @@ require('lazy').setup({
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
     opts = {
+      enabled = function()
+        -- Return false to disable blink.cmp when the filetype is 'typr'
+        return vim.bo.filetype ~= 'typr' and vim.bo.buftype ~= 'prompt'
+      end,
       keymap = {
         -- 'default' (recommended) for mappings similar to built-in completions
         --   <c-y> to accept ([y]es) the completion.
