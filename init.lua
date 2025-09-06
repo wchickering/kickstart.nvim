@@ -818,7 +818,18 @@ require('lazy').setup({
     },
     opts = {
       notify_on_error = false,
-      format_on_save = nil,
+      format_on_save = function(bufnr)
+        -- Disable autoformatting on certain filetypes
+        local disable_filetypes = { c = true, cpp = true }
+        local filetype = vim.bo[bufnr].filetype
+        if disable_filetypes[filetype] then
+          return nil
+        end
+        return {
+          timeout_ms = 500,
+          lsp_format = "fallback",
+        }
+      end,
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
