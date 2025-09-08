@@ -284,6 +284,31 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Auto-format Python files on focus/enter (for Claude Code integration)
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
+  desc = 'Auto-format Python files when focus is gained or buffer entered',
+  group = vim.api.nvim_create_augroup('auto-format-python', { clear = true }),
+  pattern = '*.py',
+  callback = function()
+    local filename = vim.fn.expand '%'
+
+    -- Skip if buffer is modified (being edited)
+    if vim.bo.modified then
+      return
+    end
+
+    -- Save buffer first to ensure file is up to date
+    vim.cmd 'silent! write'
+
+    -- Call ruff directly on the file
+    vim.fn.system('ruff format "' .. filename .. '"')
+
+    -- Reload the buffer from disk
+    vim.cmd 'silent! checktime'
+    vim.cmd 'silent! edit!'
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -842,8 +867,6 @@ require('lazy').setup({
         ruff_format = {
           args = {
             'format',
-            '--line-length=79',
-            '--quote-style=single',
             '--stdin-filename',
             '$FILENAME',
             '-',
