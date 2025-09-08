@@ -838,6 +838,18 @@ require('lazy').setup({
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
       },
+      formatters = {
+        ruff_format = {
+          args = {
+            'format',
+            '--line-length=79',
+            '--quote-style=single',
+            '--stdin-filename',
+            '$FILENAME',
+            '-',
+          },
+        },
+      },
     },
   },
 
