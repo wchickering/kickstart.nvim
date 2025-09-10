@@ -67,6 +67,17 @@ return {
       end
     end
 
+    -- Set up Shift-Enter keymap for opencode terminal
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = 'opencode_terminal',
+      callback = function(args)
+        vim.keymap.set('t', '<S-CR>', '<C-j>', {
+          buffer = args.buf,
+          desc = 'Insert newline (same as Ctrl-J)',
+        })
+      end,
+    })
+
     -- Override the toggle keymap to include auto-reload setup
     vim.keymap.set('n', '<leader>ot', function()
       require('opencode').toggle()
@@ -75,4 +86,3 @@ return {
     end, { desc = 'Toggle opencode' })
   end,
 }
-
