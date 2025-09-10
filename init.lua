@@ -207,6 +207,10 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 
 -- [[ Terminal ]]
 
+-- Variables to store original terminal window dimensions
+vim.g.terminal_original_height = nil
+vim.g.terminal_original_width = nil
+
 -- Small Terminal functionality
 local function toggle_terminal()
   local small_term_buf = vim.g.small_term_buf
@@ -261,8 +265,34 @@ vim.keymap.set('t', '<C-q>', '<C-\\><C-n>:q<CR>', { desc = 'Close terminal windo
 vim.keymap.set('n', '<C-q>', '<C-\\><C-n>:q<CR>', { desc = 'Close terminal window' })
 
 -- Toggle terminal window maximize/restore
-vim.keymap.set('t', '<C-f>', '<C-\\><C-n><C-w>_<C-w>|i', { desc = 'Maximize terminal window' })
-vim.keymap.set('t', '<C-r>', '<C-\\><C-n><C-w>=:resize 15<CR>i', { desc = 'Restore terminal window size' })
+vim.keymap.set('t', '<C-f>', function()
+  -- Capture current window dimensions before maximizing
+  vim.g.terminal_original_height = vim.api.nvim_win_get_height(0)
+  vim.g.terminal_original_width = vim.api.nvim_win_get_width(0)
+  -- Exit terminal mode, maximize, then return to insert mode
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-\\><C-n>', true, false, true), 'n', false)
+  vim.schedule(function()
+    vim.cmd 'wincmd _'
+    vim.cmd 'wincmd |'
+    vim.cmd 'startinsert'
+  end)
+end, { desc = 'Maximize terminal window' })
+vim.keymap.set('t', '<C-r>', function()
+  -- Exit terminal mode first
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-\\><C-n>', true, false, true), 'n', false)
+  vim.schedule(function()
+    if vim.g.terminal_original_height and vim.g.terminal_original_width then
+      -- Restore original dimensions
+      vim.api.nvim_win_set_height(0, vim.g.terminal_original_height)
+      vim.api.nvim_win_set_width(0, vim.g.terminal_original_width)
+    else
+      -- Fallback to original behavior
+      vim.cmd 'wincmd ='
+      vim.cmd 'resize 15'
+    end
+    vim.cmd 'startinsert'
+  end)
+end, { desc = 'Restore terminal window size' })
 
 -- Open new terminal in split
 vim.keymap.set('t', '<C-t>', '<C-\\><C-n>:vnew<CR>:term<CR>i', { desc = 'New terminal in vertical split' })
