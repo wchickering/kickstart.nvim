@@ -8,7 +8,11 @@ return {
     -- `opencode.nvim` passes options via a global variable instead of `setup()` for faster startup
     ---@type opencode.Opts
     vim.g.opencode_opts = {
-      -- Your configuration, if any — see `lua/opencode/config.lua`
+      terminal = {
+        win = {
+          enter = true, -- Always focus the terminal when opened
+        },
+      },
     }
 
     -- Required for `opts.auto_reload`
@@ -48,7 +52,7 @@ return {
     -- Set up auto-reload when terminal is toggled
     local function setup_auto_reload_if_needed()
       -- Check if auto-reload is already set up
-      if vim.fn.exists('#OpencodeAutoReload') == 0 then
+      if vim.fn.exists '#OpencodeAutoReload' == 0 then
         require('opencode.server').get_port(function(ok, port)
           if ok then
             require('opencode.reload').setup()
@@ -71,3 +75,4 @@ return {
     end, { desc = 'Toggle opencode' })
   end,
 }
+
