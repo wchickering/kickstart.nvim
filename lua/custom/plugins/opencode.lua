@@ -14,10 +14,7 @@ return {
     -- Required for `opts.auto_reload`
     vim.opt.autoread = true
 
-    -- Recommended keymaps
-    vim.keymap.set('n', '<leader>ot', function()
-      require('opencode').toggle()
-    end, { desc = 'Toggle opencode' })
+    -- Recommended keymaps (toggle is defined below with auto-reload setup)
     vim.keymap.set('n', '<leader>oA', function()
       require('opencode').ask()
     end, { desc = 'Ask opencode' })
@@ -47,5 +44,30 @@ return {
     vim.keymap.set('n', '<leader>oe', function()
       require('opencode').prompt 'Explain @cursor and its context'
     end, { desc = 'Explain this code' })
+
+    -- Set up auto-reload when terminal is toggled
+    local function setup_auto_reload_if_needed()
+      -- Check if auto-reload is already set up
+      if vim.fn.exists('#OpencodeAutoReload') == 0 then
+        require('opencode.server').get_port(function(ok, port)
+          if ok then
+            require('opencode.reload').setup()
+            require('opencode.client').listen_to_sse(port, function(response)
+              vim.api.nvim_exec_autocmds('User', {
+                pattern = 'OpencodeEvent',
+                data = response,
+              })
+            end)
+          end
+        end)
+      end
+    end
+
+    -- Override the toggle keymap to include auto-reload setup
+    vim.keymap.set('n', '<leader>ot', function()
+      require('opencode').toggle()
+      -- Set up auto-reload after a brief delay to let terminal start
+      vim.defer_fn(setup_auto_reload_if_needed, 1000)
+    end, { desc = 'Toggle opencode' })
   end,
 }
