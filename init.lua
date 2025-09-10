@@ -229,7 +229,7 @@ local function toggle_terminal()
       -- Terminal buffer exists but not open, open it in new window
       vim.cmd.vnew()
       vim.api.nvim_win_set_buf(0, small_term_buf)
-      vim.cmd.wincmd('J')
+      vim.cmd.wincmd 'J'
       vim.api.nvim_win_set_height(0, 15)
     end
   else
@@ -237,7 +237,7 @@ local function toggle_terminal()
     vim.cmd.vnew()
     vim.cmd.term()
     vim.g.small_term_buf = vim.api.nvim_get_current_buf()
-    vim.cmd.wincmd('J')
+    vim.cmd.wincmd 'J'
     vim.api.nvim_win_set_height(0, 15)
   end
 
@@ -281,31 +281,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function()
     vim.hl.on_yank()
-  end,
-})
-
--- Auto-format Python files on focus/enter (for Claude Code integration)
-vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
-  desc = 'Auto-format Python files when focus is gained or buffer entered',
-  group = vim.api.nvim_create_augroup('auto-format-python', { clear = true }),
-  pattern = '*.py',
-  callback = function()
-    local filename = vim.fn.expand '%'
-
-    -- Skip if buffer is modified (being edited)
-    if vim.bo.modified then
-      return
-    end
-
-    -- Save buffer first to ensure file is up to date
-    vim.cmd 'silent! write'
-
-    -- Call ruff directly on the file
-    vim.fn.system('ruff format "' .. filename .. '"')
-
-    -- Reload the buffer from disk
-    vim.cmd 'silent! checktime'
-    vim.cmd 'silent! edit!'
   end,
 })
 
@@ -852,7 +827,7 @@ require('lazy').setup({
         end
         return {
           timeout_ms = 500,
-          lsp_format = "fallback",
+          lsp_format = 'fallback',
         }
       end,
       formatters_by_ft = {
@@ -1000,10 +975,10 @@ require('lazy').setup({
       vim.cmd.colorscheme 'tokyonight-night'
 
       -- Enable transparency for terminal background
-      vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
-      vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
-      vim.api.nvim_set_hl(0, "SignColumn", { bg = "NONE" })
-      vim.api.nvim_set_hl(0, "NormalNC", { bg = "NONE" })
+      vim.api.nvim_set_hl(0, 'Normal', { bg = 'NONE' })
+      vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'NONE' })
+      vim.api.nvim_set_hl(0, 'SignColumn', { bg = 'NONE' })
+      vim.api.nvim_set_hl(0, 'NormalNC', { bg = 'NONE' })
     end,
   },
 
