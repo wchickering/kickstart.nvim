@@ -230,8 +230,8 @@ local function toggle_terminal()
       -- Terminal is already open, just focus it
       vim.api.nvim_set_current_win(term_win)
     else
-      -- Terminal buffer exists but not open, open it in new window
-      vim.cmd.vnew()
+      -- Terminal buffer exists, open it in split window
+      vim.cmd.split()
       vim.api.nvim_win_set_buf(0, small_term_buf)
       vim.cmd.wincmd 'J'
       vim.api.nvim_win_set_height(0, 15)
