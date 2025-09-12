@@ -173,6 +173,9 @@ vim.o.confirm = true
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Quick close window
+vim.keymap.set('n', '<C-q>', '<C-\\><C-n>:q<CR>', { desc = 'Close window' })
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror details' })
@@ -262,7 +265,6 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 
 -- Quick close terminal window from terminal mode
 vim.keymap.set('t', '<C-q>', '<C-\\><C-n>:q<CR>', { desc = 'Close terminal window' })
-vim.keymap.set('n', '<C-q>', '<C-\\><C-n>:q<CR>', { desc = 'Close terminal window' })
 
 -- Toggle terminal window maximize/restore
 vim.keymap.set('t', '<C-f>', function()
