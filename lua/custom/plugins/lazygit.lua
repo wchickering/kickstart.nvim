@@ -12,6 +12,10 @@ return {
   dependencies = {
     'nvim-lua/plenary.nvim',
   },
+  config = function()
+    vim.g.lazygit_use_custom_config_file_path = 1 -- config file path is evaluated if this value is 1
+    vim.g.lazygit_config_file_path = vim.fn.expand '~/.config/nvim/config/lazygit/config.yaml' -- custom config file path
+  end,
   -- setting the keybinding for LazyGit with 'keys' is recommended in
   -- order to load the plugin when the command is run for the first time
   keys = {
