@@ -1,0 +1,4 @@
+promptToReturnFromSubprocess: false
+os:
+  edit: 'tmux display-message -p "#S-#I" | xargs -I {} nvim --server /tmp/nvim-{}.pipe --remote-tab {{filename}}'
+  editAtLine: 'tmux display-message -p "#S-#I" | xargs -I {} nvim --server /tmp/nvim-{}.pipe --remote-tab {{filename}}; tmux display-message -p "#S-#I" | xargs -I {} nvim --server /tmp/nvim-{}.pipe --remote-send ":{{line}}<CR>"'
