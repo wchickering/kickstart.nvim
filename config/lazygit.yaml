@@ -1,4 +1,17 @@
 promptToReturnFromSubprocess: false
+# Used in combination with the following in .zshrc to enable editing
+# within neovim instance in local tmux session & window
+#
+# function nv() {
+#   if [[ -n "$TMUX" ]]; then
+#     # If in a tmux session, get the session name & window index and use --listen
+#     SESSION_NAME=$(tmux display-message -p "#S-#I")
+#     command nvim --listen "/tmp/nvim-${SESSION_NAME}.pipe" "$@"
+#   else
+#     # If not in tmux, run nvim normally
+#     command nvim "$@"
+#   fi
+# }
 os:
   edit: 'tmux display-message -p "#S-#I" | xargs -I {} nvim --server /tmp/nvim-{}.pipe --remote-tab {{filename}}'
   editAtLine: 'tmux display-message -p "#S-#I" | xargs -I {} nvim --server /tmp/nvim-{}.pipe --remote-tab {{filename}}; tmux display-message -p "#S-#I" | xargs -I {} nvim --server /tmp/nvim-{}.pipe --remote-send ":{{line}}<CR>"'
