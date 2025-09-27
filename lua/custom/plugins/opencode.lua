@@ -84,6 +84,25 @@ return {
       end,
     })
 
+    -- Configure OpenCode message editor
+    vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+      pattern = 'msg_*.md',
+      callback = function()
+        vim.opt_local.textwidth = 72
+        vim.opt_local.wrap = true
+        vim.opt_local.linebreak = true
+        -- Auto-format long lines when buffer is opened
+        vim.schedule(function()
+          -- Format the entire buffer
+          vim.cmd 'normal! ggVGgq'
+          -- Move cursor to end of buffer and enter insert mode
+          vim.cmd 'normal! G$'
+          vim.cmd 'startinsert!'
+        end)
+      end,
+      desc = 'Auto-format OpenCode message files',
+    })
+
     -- Override the toggle keymap to include auto-reload setup
     vim.keymap.set('n', '<leader>ot', function()
       require('opencode').toggle()

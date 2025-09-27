@@ -43,6 +43,7 @@ return {
     ---@type Neominimap.UserConfig
     vim.g.neominimap = {
       auto_enable = true,
+      exclude_filetypes = { 'markdown' },
     }
   end,
 }
