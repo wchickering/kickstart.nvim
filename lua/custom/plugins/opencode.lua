@@ -71,6 +71,12 @@ return {
     vim.api.nvim_create_autocmd('FileType', {
       pattern = 'opencode_terminal',
       callback = function(args)
+        -- Disable tmux navigation in this buffer
+        vim.keymap.set('t', '<C-h>', '<C-h>', { buffer = args.buf })
+        vim.keymap.set('t', '<C-j>', '<C-j>', { buffer = args.buf })
+        vim.keymap.set('t', '<C-k>', '<C-k>', { buffer = args.buf })
+        vim.keymap.set('t', '<C-l>', '<C-l>', { buffer = args.buf })
+        -- Set up Shift-Enter mapping
         vim.keymap.set('t', '<S-CR>', '<C-j>', {
           buffer = args.buf,
           desc = 'Insert newline (same as Ctrl-J)',
