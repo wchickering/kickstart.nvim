@@ -153,38 +153,6 @@ return {
     --   vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
     -- end
 
-    -- -- keymaps
-    -- vim.keymap.set('n', '<leader>dc', function()
-    --   dap.continue()
-    -- end, { desc = 'Debug: Start/Continue' })
-    -- vim.keymap.set('n', '<leader>di', function()
-    --   dap.step_into()
-    -- end, { desc = 'Debug: Step Into' })
-    -- vim.keymap.set('n', '<leader>do', function()
-    --   dap.step_over()
-    -- end, { desc = 'Debug: Step Over' })
-    -- vim.keymap.set('n', '<leader>dO', function()
-    --   dap.step_out()
-    -- end, { desc = 'Debug: Step Out' })
-    -- vim.keymap.set('n', '<leader>dr', function()
-    --   dap.run_to_cursor()
-    -- end, { desc = 'Debug: Run to Cursor' })
-    -- vim.keymap.set('n', '<leader>db', function()
-    --   dap.toggle_breakpoint()
-    -- end, { desc = 'Debug: Toggle Breakpoint' })
-    -- vim.keymap.set('n', '<leader>dB', function()
-    --   dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
-    -- end, { desc = 'Debug: Set Breakpoint' })
-    -- vim.keymap.set('n', '<leader>du', function()
-    --   dapui.toggle()
-    -- end, { desc = 'Debug: See last session result.' })
-    -- vim.keymap.set('n', '<leader>d?', function()
-    --   dapui.eval(nil, { enter = true })
-    -- end, { desc = 'Debug: Eval var under cursor.' })
-    -- vim.keymap.set('n', '<leader>dq', function()
-    --   dap.terminate()
-    -- end, { desc = 'Debug: Terminate Session' })
-
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
